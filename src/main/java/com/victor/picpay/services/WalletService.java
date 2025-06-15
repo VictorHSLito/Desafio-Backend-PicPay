@@ -2,6 +2,7 @@ package com.victor.picpay.services;
 
 import com.victor.picpay.dtos.WalletDTO;
 import com.victor.picpay.entities.Wallet;
+import com.victor.picpay.exceptions.WalletDataAlreadyExists;
 import com.victor.picpay.repositories.WalletRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,11 @@ public class WalletService {
     }
 
     public Wallet createWallet(WalletDTO walletDTO) {
+
+        var wallet = walletRepository.findByCpfCnpjOrEmail(walletDTO.email(), walletDTO.cpfCnpj());
+        if (wallet.isPresent()) {
+            throw new WalletDataAlreadyExists("CPF or CNPJ already exists");
+        }
         return walletRepository.save(walletDTO.toWallet());
     }
 }

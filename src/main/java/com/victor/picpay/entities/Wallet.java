@@ -29,7 +29,7 @@ public class Wallet {
     private String lastName;
 
     @Column(name = "cpf_cnpj", unique = true)
-    private String cpfcnpj;
+    private String cpfCnpj;
 
     @Column(name = "email", unique = true)
     private String email;
@@ -44,6 +44,12 @@ public class Wallet {
     @Enumerated(EnumType.STRING)
     private WalletType walletType;
 
-    public Wallet(String firsName, String lastName, String email, String password, WalletType walletType) {
+    public Wallet(String firstName, String lastName, String cpfCnpj, String email, String password, WalletType walletType) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.cpfCnpj = cpfCnpj;
+        this.email = email;
+        this.password = password;
+        this.walletType = walletType;
     }
 }

@@ -1,6 +1,6 @@
 package com.victor.picpay.entities;
 
-import com.victor.picpay.dtos.UserType;
+import com.victor.picpay.enums.UserType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,4 +44,12 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Wallet userWallet;
 
+    public User(String firstName, String lastName, String cpfCnpj, String email, String password, UserType userType) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.cpfCnpj = cpfCnpj;
+        this.email = email;
+        this.password = password;
+        this.userType = userType;
+    }
 }

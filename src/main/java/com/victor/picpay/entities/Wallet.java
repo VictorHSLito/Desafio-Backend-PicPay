@@ -1,6 +1,5 @@
 package com.victor.picpay.entities;
 
-import com.victor.picpay.enums.WalletType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

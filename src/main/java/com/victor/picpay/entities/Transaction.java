@@ -1,12 +1,20 @@
 package com.victor.picpay.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "tb_transaction")
 public class Transaction {
     @Id
@@ -26,5 +34,5 @@ public class Transaction {
     private BigDecimal value;
 
     @Column(name = "time")
-    private LocalDateTime time;
+    private LocalDateTime time = LocalDateTime.now();
 }

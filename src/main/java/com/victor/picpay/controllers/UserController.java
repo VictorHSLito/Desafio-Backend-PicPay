@@ -20,7 +20,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<User> createWallet(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<User> createUser(@RequestBody UserDTO userDTO) {
         var user = userService.createUser(userDTO);
         return ResponseEntity.ok(user);
     }

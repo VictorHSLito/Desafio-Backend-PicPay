@@ -2,12 +2,11 @@ package com.victor.picpay.services;
 
 import com.victor.picpay.clients.services.AuthorizationService;
 import com.victor.picpay.clients.services.NotificationService;
-import com.victor.picpay.dtos.TrasactionDTO;
+import com.victor.picpay.dtos.TransactionDTO;
 import com.victor.picpay.entities.Transaction;
 import com.victor.picpay.entities.User;
 import com.victor.picpay.entities.Wallet;
 import com.victor.picpay.repositories.TransactionRepository;
-import com.victor.picpay.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,7 @@ import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
-public class TrasactionService {
+public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final UserService userService;
@@ -25,19 +24,19 @@ public class TrasactionService {
     private final NotificationService notificationService;
 
     @Transactional
-    public void executeTransferation(TrasactionDTO trasactionDTO) {
-        var payer = userService.findUser(trasactionDTO.payer().getId());
-        var payee = userService.findUser(trasactionDTO.payee().getId());
+    public void executeTransferation(TransactionDTO transactionDTO) {
+        var payer = userService.findUser(transactionDTO.payer());
+        var payee = userService.findUser(transactionDTO.payee());
 
         if (UserService.verifyUserType(payer)) {
             throw new IllegalArgumentException("Payer user cannot be MERCHANT!!!");
         }
 
-        verifyBalance(payer, trasactionDTO.value());
+        verifyBalance(payer, transactionDTO.value());
         validateTransfer();
 
-        BigDecimal newBalancePayer = payer.getUserWallet().getBalance().subtract(trasactionDTO.value());
-        BigDecimal newBalancePayee = payee.getUserWallet().getBalance().add(trasactionDTO.value());
+        BigDecimal newBalancePayer = payer.getUserWallet().getBalance().subtract(transactionDTO.value());
+        BigDecimal newBalancePayee = payee.getUserWallet().getBalance().add(transactionDTO.value());
 
         payer.getUserWallet().setBalance(newBalancePayer);
         payee.getUserWallet().setBalance(newBalancePayee);
@@ -46,9 +45,9 @@ public class TrasactionService {
         updateWallet(payee.getUserWallet());
 
         Transaction transaction = Transaction.builder()
-                .value(trasactionDTO.value())
-                .payer(trasactionDTO.payer())
-                .payee(trasactionDTO.payee())
+                .value(transactionDTO.value())
+                .payer(payer)
+                .payee(payee)
                 .build();
 
         transactionRepository.save(transaction);

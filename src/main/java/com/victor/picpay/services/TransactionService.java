@@ -28,7 +28,7 @@ public class TransactionService {
         var payer = userService.findUser(transactionDTO.payer());
         var payee = userService.findUser(transactionDTO.payee());
 
-        if (UserService.verifyUserType(payer)) {
+        if (userService.verifyUserType(payer)) {
             throw new IllegalArgumentException("Payer user cannot be MERCHANT!!!");
         }
 
@@ -64,7 +64,7 @@ public class TransactionService {
 
     private void validateTransfer() throws IllegalArgumentException {
         if (!authorizationService.validateTransfer()) {
-            throw new IllegalArgumentException("Trasaction couldn't be completed by API");
+            throw new IllegalArgumentException("Transaction couldn't be completed by API");
         }
     }
 

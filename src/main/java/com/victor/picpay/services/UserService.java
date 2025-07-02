@@ -36,7 +36,7 @@ public class UserService {
     }
 
 
-    public static boolean verifyUserType(User user) {
-        return user.getUserType().equals(UserType.MERCHANT);
+    public boolean verifyUserType(User user) {
+        return user.getUserType().equals(UserType.MERCHANT) ;
     }
 }

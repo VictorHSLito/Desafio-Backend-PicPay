@@ -36,9 +36,6 @@ class UserServiceTest {
     @Captor
     private ArgumentCaptor<User> userArgumentCaptor;
 
-    @Captor
-    private ArgumentCaptor<UUID> uuidArgumentCaptor;
-
     @Nested
     class CreateUserTest {
         @Test
@@ -132,13 +129,6 @@ class UserServiceTest {
         @DisplayName("Should Throws Exception When Not Found An User By Id Successfully")
         void shouldThrowsExceptionWhenNotFoundAnUserByIdSuccessfully() {
             UUID userId = UUID.randomUUID();
-            User user = new User("First Name Test",
-                    "Last Name Test",
-                    "00000000000",
-                    "email.test@gmail.com",
-                    "strongPasswordExample#123",
-                    UserType.REGULAR);
-            user.setId(userId);
 
             when(userRepository.findById(userId)).thenReturn(Optional.empty());
 

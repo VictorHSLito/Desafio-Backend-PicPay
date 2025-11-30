@@ -41,7 +41,7 @@ O sistema oferece as seguintes funcionalidades principais:
 
 ---
 
-## 🚀 Como Rodar o Projeto
+## 🚀 Como Rodar o Projeto Localmente
 
 Siga os passos abaixo para configurar e executar o projeto em sua máquina local.
 
@@ -51,30 +51,32 @@ Certifique-se de ter as seguintes ferramentas instaladas:
 
 * [Java Development Kit (JDK) 17](https://www.oracle.com/java/technologies/downloads/) ou superior
 * [Maven](https://maven.apache.org/download.cgi)
-* [MySQL](https://dev.mysql.com/downloads/mysql/) ou um banco de dados de sua preferência
+* [Postgres](https://www.postgresql.org/) ou um banco de dados de sua preferência
+* [Docker](https://www.docker.com/) (Opcional)
 
 ### Configuração
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [https://github.com/VictorHSLito/Desafio-Backend-PicPay.git](https://github.com/VictorHSLito/Desafio-Backend-PicPay.git)
+    git clone https://github.com/VictorHSLito/Desafio-Backend-PicPay.git
+    ```
+    ```bash
     cd Desafio-Backend-PicPay
     ```
 
-2.  **Configure o arquivo `application.properties` com as informações do seu banco de dados:**
-    Dentro do diretório do projeto, especificamente dentro da pasta `resources` há o arquivo **`application.properties`** em que é necessário configurar os parâmetros do banco de dados. Um exemplo de configuração:
+2.  **Copie o arquivo `application.properties.example` e renomeie-o para `application.properties`**. Configure as propriedades desse novo arquivo, conforme exemplo abaixo, com as informações do seu banco de dados. Exemplo de configuração:
 
     ```
     spring.application.name=picpay-simplificado
 
-    spring.datasource.url=jdbc:mysql://localhost:3306/picpay
-    spring.datasource.username=root
-    spring.datasource.password=
-    spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+    spring.datasource.url=jdbc:postgresql://localhost:5432/picpaydb
+    spring.datasource.username=picpay-admin
+    spring.datasource.password=1234
+    spring.datasource.driver-class-name=org.postgresql.Driver
 
     spring.jpa.hibernate.ddl-auto=update
     spring.jpa.show-sql=true
-    spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+    spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
     ```
 
 3.  **Instale as dependências do projeto com o Maven:**
@@ -89,13 +91,45 @@ Certifique-se de ter as seguintes ferramentas instaladas:
     ```
     Ou se preferir executar o JAR gerado:
     ```bash
-    java -jar target/desafio-backend-picpay-0.0.1-SNAPSHOT.jar # Verifique o nome exato do JAR
+    java -jar target/Picpay-0.0.1-SNAPSHOT.jar # Verifique o nome exato do JAR gerado
     ```
     O servidor estará rodando em `http://localhost:8080` (ou na porta definida no `application.properties`).
 
 5. **Teste os endpoints da API**:
     Após a aplicação iniciar, você poderá testar os endpoints através de ferramentas como **Postman**, **Insomnia** ou **cURL**. Verifique a próxima seção para a lista dos principais endpoints.
 ---
+
+## 🚀 Como Rodar o Projeto Via Docker
+
+Siga os passos abaixo para rodar o projeto via Docker:
+
+1.  **Clone o repositório:**
+    ```bash
+    git clone https://github.com/VictorHSLito/Desafio-Backend-PicPay.git
+    ```
+    ```bash
+    cd Desafio-Backend-PicPay
+    ```
+2.  **Copie o arquivo `application.properties.example` e renomeie-o para `application.properties`**. Configure as propriedades desse novo arquivo, conforme exemplo abaixo, com as informações do seu banco de dados. Exemplo de configuração:
+    ```
+    spring.application.name=picpay-simplificado
+
+    spring.datasource.url=jdbc:postgresql://<nome_do_container_docker_nao_mais_localhost>:5432/picpaydb
+    spring.datasource.username=picpay-admin
+    spring.datasource.password=1234
+    spring.datasource.driver-class-name=org.postgresql.Driver
+
+    spring.jpa.hibernate.ddl-auto=update
+    spring.jpa.show-sql=true
+    spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+    ```
+
+3. **Copie o arquivo `.env.example` e renomeie-o para `.env` e mude as configurações caso não queira utilizar as configurações padrões fornecidas no `docker-compose.yml`**.
+
+#### Importante:
+
+**As configurações do seu `application.properties` e do seu `.env` devem ser as mesmas, pois o .env é utilizado para sobrescrever as variáveis de ambiente do docker, enquanto que o `application.properties` serve para informar as variáveis de ambiente que a aplicação Java irá utilizar.**
+
 
 ## 🧪 Testes
 

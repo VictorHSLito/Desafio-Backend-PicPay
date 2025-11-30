@@ -1,0 +1,41 @@
+services:
+  spring-application:
+    container_name: picpay-api
+    image: picpay-solution-java:1.0
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - backend-network
+
+  postgres:
+    container_name: picpay-database
+    image: ${POSTGRES_IMAGE:-postgres}:${POSTGRES_VERSION:-14.19-trixie}
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-picpay-admin}
+      # Senha padrão fornecida apenas para rodar a aplicacão, trocar no seu .env e omiti-la daqui
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-1234}
+      - POSTGRES_DB=${POSTGRES_DB:-picpaydb}
+    volumes:
+      - picpay_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  backend-network:
+    driver: bridge
+
+volumes:
+  picpay_data:

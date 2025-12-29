@@ -3,6 +3,7 @@ package com.victor.picpay.controllers;
 import com.victor.picpay.dtos.UserDTO;
 import com.victor.picpay.entities.User;
 import com.victor.picpay.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +21,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<User> createUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<User> createUser(@RequestBody @Valid UserDTO userDTO) {
         var user = userService.createUser(userDTO);
         return ResponseEntity.ok(user);
     }

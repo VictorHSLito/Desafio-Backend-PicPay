@@ -6,6 +6,8 @@ import com.victor.picpay.enums.UserType;
 import com.victor.picpay.exceptions.UserNotFound;
 import com.victor.picpay.exceptions.WalletDataAlreadyExists;
 import com.victor.picpay.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -15,17 +17,26 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    private final PasswordEncoder passwordEncoder;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User createUser(UserDTO userDTO) {
-
         var wallet = userRepository.findByCpfCnpjOrEmail(userDTO.email(), userDTO.cpfCnpj());
         if (wallet.isPresent()) {
             throw new WalletDataAlreadyExists("CPF or CNPJ already exists");
         }
-        return userRepository.save(UserDTO.toUser(userDTO));
+
+        var encryptedPassword = passwordEncoder.encode(userDTO.password());
+
+        var user = UserDTO.toUser(userDTO);
+
+        user.setPassword(encryptedPassword);
+
+        return userRepository.save(user);
     }
 
     public User findUser(UUID uuid) {

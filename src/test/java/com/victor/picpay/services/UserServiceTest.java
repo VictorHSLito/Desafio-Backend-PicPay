@@ -1,5 +1,6 @@
 package com.victor.picpay.services;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,12 +24,14 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.victor.picpay.dtos.UserDTO;
 import com.victor.picpay.entities.User;
 import com.victor.picpay.enums.UserType;
 import com.victor.picpay.exceptions.UserNotFound;
 import com.victor.picpay.exceptions.WalletDataAlreadyExists;
+import com.victor.picpay.mappers.UserMapper;
 import com.victor.picpay.repositories.UserRepository;
 
 
@@ -37,6 +40,12 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private UserMapper userMapper;
 
     @InjectMocks
     private UserService userService;
@@ -72,6 +81,10 @@ class UserServiceTest {
 
             doReturn(user).when(userRepository).save(userArgumentCaptor.capture());
 
+            when(passwordEncoder.encode(user.getPassword())).thenReturn("encrypted_password");
+
+            when(userMapper.dtoToUser(input)).thenReturn(user);
+
             // Act
             var output = userService.createUser(input);
 
@@ -79,12 +92,14 @@ class UserServiceTest {
 
             // Assert
             assertNotNull(output);
-            assertEquals(user.getFirstName(), userCaptured.getFirstName());
-            assertEquals(user.getLastName(), userCaptured.getLastName());
-            assertEquals(user.getCpfCnpj(), userCaptured.getCpfCnpj());
-            assertEquals(user.getEmail(), userCaptured.getEmail());
-            assertEquals(user.getPassword(), userCaptured.getPassword());
-            assertEquals(user.getUserType(), userCaptured.getUserType());
+            assertAll("Verify If User Was Created",
+                () -> assertEquals(user.getFirstName(), userCaptured.getFirstName()),
+                () -> assertEquals(user.getLastName(), userCaptured.getLastName()),
+                () -> assertEquals(user.getCpfCnpj(), userCaptured.getCpfCnpj()),
+                () -> assertEquals(user.getEmail(), userCaptured.getEmail()),
+                () -> assertEquals(user.getPassword(), userCaptured.getPassword()),
+                () -> assertEquals(user.getUserType(), userCaptured.getUserType())
+            );
             verify(userRepository, times(1))
                     .save(any(User.class)); // Verify how many times the repository used save method
         }

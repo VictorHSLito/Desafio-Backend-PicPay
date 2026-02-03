@@ -1,6 +1,5 @@
 package com.victor.picpay.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,8 +17,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
-    @Autowired
-    private UserAuthenticationFilter userAuthenticationFilter;
+    private final UserAuthenticationFilter userAuthenticationFilter;
+
+    public SecurityConfiguration(UserAuthenticationFilter userAuthenticationFilter) {
+        this.userAuthenticationFilter = userAuthenticationFilter;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, UserAuthenticationFilter userAuthenticationFilter) throws Exception {
@@ -31,7 +33,7 @@ public class SecurityConfiguration {
                 )
                 .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/user/**").permitAll())
                 .authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
-                .addFilterBefore(userAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(this.userAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

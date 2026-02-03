@@ -1,16 +1,17 @@
 package com.victor.picpay.services;
 
+import java.util.UUID;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.victor.picpay.dtos.UserDTO;
 import com.victor.picpay.entities.User;
 import com.victor.picpay.enums.UserType;
 import com.victor.picpay.exceptions.UserNotFound;
 import com.victor.picpay.exceptions.WalletDataAlreadyExists;
+import com.victor.picpay.mappers.UserMapper;
 import com.victor.picpay.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 public class UserService {
@@ -19,9 +20,12 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    private final UserMapper userMapper;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
     }
 
     public User createUser(UserDTO userDTO) {
@@ -32,7 +36,7 @@ public class UserService {
 
         var encryptedPassword = passwordEncoder.encode(userDTO.password());
 
-        var user = UserDTO.toUser(userDTO);
+        var user = userMapper.dtoToUser(userDTO);
 
         user.setPassword(encryptedPassword);
 

@@ -41,13 +41,14 @@ class WalletServiceTest {
         void shouldCreateWalletSuccessfully() {
             UUID userId = UUID.randomUUID();
 
-            User user = new User("Fist Name Test",
-                    "Last Name Test",
-                    "00000000000",
-                    "email.test@gmail.com",
-                    "StrongPassWord#321",
-                    UserType.REGULAR
-                    );
+            User user = User.builder()
+            .firstName("First Name Test")
+            .lastName("Last Name Test")
+            .cpfCnpj("00000000000")
+            .email("email.test@gmail.com")
+            .password("StrongPassWord#321")
+            .userType(UserType.REGULAR)
+            .build();
 
             user.setId(userId);
 
@@ -76,13 +77,14 @@ class WalletServiceTest {
         void shouldNotCreateWalletWhenUserDoesNotExists() {
             UUID userId = UUID.randomUUID();
 
-            User user = new User("Fist Name Test",
-                    "Last Name Test",
-                    "00000000000",
-                    "email.test@gmail.com",
-                    "StrongPassWord#321",
-                    UserType.REGULAR
-            );
+            User user = User.builder()
+            .firstName("First Name Test")
+            .lastName("Last Name Test")
+            .cpfCnpj("00000000000")
+            .email("email.test@gmail.com")
+            .password("StrongPassWord#321")
+            .userType(UserType.REGULAR)
+            .build();
 
             user.setId(userId);
 

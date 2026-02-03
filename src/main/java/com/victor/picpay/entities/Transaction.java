@@ -10,27 +10,22 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
 @Table(name = "tb_transaction")
 public class Transaction {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payer_id")
     private User payer;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payee_id")
     private User payee;
 
-    @Column(name = "value")
     private BigDecimal value;
 
-    @Column(name = "time")
-    private LocalDateTime time = LocalDateTime.now();
+    private final LocalDateTime time = LocalDateTime.now();
 }

@@ -1,11 +1,19 @@
 package com.victor.picpay.services;
 
-import com.victor.picpay.dtos.UserDTO;
-import com.victor.picpay.entities.User;
-import com.victor.picpay.enums.UserType;
-import com.victor.picpay.exceptions.UserNotFound;
-import com.victor.picpay.exceptions.WalletDataAlreadyExists;
-import com.victor.picpay.repositories.UserRepository;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import java.util.UUID;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,12 +24,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import com.victor.picpay.dtos.UserDTO;
+import com.victor.picpay.entities.User;
+import com.victor.picpay.enums.UserType;
+import com.victor.picpay.exceptions.UserNotFound;
+import com.victor.picpay.exceptions.WalletDataAlreadyExists;
+import com.victor.picpay.repositories.UserRepository;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -42,12 +50,15 @@ class UserServiceTest {
         @DisplayName("Should Create A New User Successfully")
         void shouldCreateANewUserSuccessfully() {
             // Arrange
-            User user = new User("First Name Test",
-                    "Last Name Test",
-                    "00000000000",
-                    "email.test@gmail.com",
-                    "strongPasswordExample#123",
-                    UserType.REGULAR); // Create a user for the test
+
+            User user = User.builder()
+            .firstName("First Name Test")
+            .lastName("Last Name Test")
+            .cpfCnpj("00000000000")
+            .email("email.test@gmail.com")
+            .password("strongPasswordExample#123")
+            .userType(UserType.REGULAR)
+            .build();
 
             UserDTO input = new UserDTO(user.getFirstName(),
                     user.getLastName(),
@@ -89,7 +100,7 @@ class UserServiceTest {
                     UserType.REGULAR);
 
             when(userRepository.findByCpfCnpjOrEmail(input.email(), input.cpfCnpj()))
-                    .thenReturn(Optional.of(new User()));
+                    .thenReturn(Optional.of(User.builder().build()));
 
             assertThrows(WalletDataAlreadyExists.class, () -> userService.createUser(input));
             verify(userRepository, never()).save(any());
@@ -102,12 +113,15 @@ class UserServiceTest {
         @DisplayName("Should Find An User By Id And Return It Successfully")
         void shouldFindAnUserByIdAndReturnItSuccessfully() {
             UUID userId = UUID.randomUUID();
-            User user = new User("First Name Test",
-                    "Last Name Test",
-                    "00000000000",
-                    "email.test@gmail.com",
-                    "strongPasswordExample#123",
-                    UserType.REGULAR);
+
+            User user = User.builder()
+            .firstName("First Name Test")
+            .lastName("Last Name Test")
+            .cpfCnpj("00000000000")
+            .email("email.test@gmail.com")
+            .password("strongPasswordExample#123")
+            .userType(UserType.REGULAR)
+            .build();
 
             user.setId(userId);
 

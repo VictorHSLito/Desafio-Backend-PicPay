@@ -11,6 +11,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "tb_transaction")
 public class Transaction {
     @Id

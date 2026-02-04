@@ -3,6 +3,7 @@ package com.victor.picpay.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -16,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfiguration {
     private final UserAuthenticationFilter userAuthenticationFilter;
 
@@ -28,11 +30,11 @@ public class SecurityConfiguration {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests((authorize) ->
+                .authorizeHttpRequests(authorize->
                         authorize.requestMatchers(HttpMethod.POST, "/login/**").permitAll()
+                        .requestMatchers("/user/create", "/user/update/**").permitAll()
+                        .anyRequest().authenticated()
                 )
-                .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/user/**").permitAll())
-                .authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
                 .addFilterBefore(this.userAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

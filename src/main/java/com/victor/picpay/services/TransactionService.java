@@ -1,17 +1,26 @@
 package com.victor.picpay.services;
 
+import java.math.BigDecimal;
+import java.nio.file.AccessDeniedException;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.victor.picpay.clients.services.AuthorizationService;
 import com.victor.picpay.clients.services.NotificationService;
 import com.victor.picpay.dtos.TransactionDTO;
+import com.victor.picpay.dtos.TransactionDetailsDTO;
 import com.victor.picpay.entities.Transaction;
 import com.victor.picpay.entities.User;
 import com.victor.picpay.entities.Wallet;
+import com.victor.picpay.exceptions.TransactionNotFoundException;
+import com.victor.picpay.exceptions.UserNotFoundException;
+import com.victor.picpay.mappers.TransactionMapper;
 import com.victor.picpay.repositories.TransactionRepository;
+import com.victor.picpay.repositories.UserRepository;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +31,8 @@ public class TransactionService {
     private final AuthorizationService authorizationService;
     private final WalletService walletService;
     private final NotificationService notificationService;
+    private final TransactionMapper transactionMapper;
+    private final UserRepository userRepository;
 
     @Transactional
     public void executeTransferation(TransactionDTO transactionDTO) {
@@ -53,6 +64,24 @@ public class TransactionService {
         transactionRepository.save(transaction);
 
         notificationService.sendNotification();
+    }
+
+
+    public List<TransactionDetailsDTO> fetchAllTransactions(String userId, String userEmail) throws AccessDeniedException {
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UserNotFoundException("User not found!"));
+
+        if (!user.getId().toString().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to do this operation!");
+        }
+
+        List<Transaction> listTransaction = transactionRepository.findByPayerEmail(userEmail);
+
+        if (listTransaction.isEmpty()) {
+           throw new TransactionNotFoundException("No transactions found for this user.");
+        }
+
+        
+        return listTransaction.stream().map(t -> transactionMapper.toDetailsDTO(t)).toList();
     }
 
 

@@ -27,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.victor.picpay.dtos.UserDTO;
+import com.victor.picpay.dtos.UserInfoDTO;
 import com.victor.picpay.entities.User;
 import com.victor.picpay.enums.UserType;
 import com.victor.picpay.exceptions.UserNotFoundException;
@@ -60,7 +61,10 @@ class UserServiceTest {
         void shouldCreateANewUserSuccessfully() {
             // Arrange
 
+            UUID userId = UUID.randomUUID();
+
             User user = User.builder()
+            .id(userId)
             .firstName("First Name Test")
             .lastName("Last Name Test")
             .cpfCnpj("00000000000")
@@ -76,14 +80,22 @@ class UserServiceTest {
                     user.getPassword(),
                     UserType.REGULAR); // Simulate a DTO with data of test user
 
-            when(userRepository.findByCpfCnpjOrEmail(anyString(), anyString()))
-                    .thenReturn(Optional.empty()); // Pass verification to not stop the test
+            UserInfoDTO dto = new UserInfoDTO(
+                userId,
+                user.getFirstName(),
+                user.getLastName(),
+                user.getUserType()
+            );
+
+            when(userRepository.findByCpfCnpjOrEmail(anyString(), anyString())).thenReturn(Optional.empty());
+                    
+            when(passwordEncoder.encode(user.getPassword())).thenReturn("encrypted_password");
+            
+            when(userMapper.dtoToUser(input)).thenReturn(user);
 
             doReturn(user).when(userRepository).save(userArgumentCaptor.capture());
-
-            when(passwordEncoder.encode(user.getPassword())).thenReturn("encrypted_password");
-
-            when(userMapper.dtoToUser(input)).thenReturn(user);
+                    
+            when(userMapper.toInfoDto(user)).thenReturn(dto);
 
             // Act
             var output = userService.createUser(input);

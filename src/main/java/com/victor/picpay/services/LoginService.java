@@ -21,7 +21,7 @@ public class LoginService {
     private PasswordEncoder passwordEncoder;
 
     public RecoveryJwtTokenDTO verifyUserLogin(LoginDTO loginDTO) {
-        var user = userRepository.findUserByEmail(loginDTO.email());
+        var user = userRepository.findByEmail(loginDTO.email());
 
         if (user.isPresent()) {
             String password = user.get().getPassword();

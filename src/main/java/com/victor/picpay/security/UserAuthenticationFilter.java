@@ -1,28 +1,34 @@
 package com.victor.picpay.security;
 
-import com.victor.picpay.entities.User;
-import com.victor.picpay.repositories.UserRepository;
-import com.victor.picpay.security.jwt.JwtTokenService;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.io.IOException;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
+import com.victor.picpay.entities.User;
+import com.victor.picpay.repositories.UserRepository;
+import com.victor.picpay.security.jwt.JwtTokenService;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class UserAuthenticationFilter extends OncePerRequestFilter {
-    @Autowired
-    private JwtTokenService jwtTokenService;
+    
+    private final JwtTokenService jwtTokenService;
+    
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    public UserAuthenticationFilter(JwtTokenService jwtTokenService, UserRepository userRepository) {
+        this.jwtTokenService = jwtTokenService;
+        this.userRepository = userRepository;
+    }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -30,9 +36,9 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             String subject = jwtTokenService.getSubjectFromToken(token);
-            User user = userRepository.findUserByEmail(subject).get();
+            User user = userRepository.findByEmail(subject).get();
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
+            Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

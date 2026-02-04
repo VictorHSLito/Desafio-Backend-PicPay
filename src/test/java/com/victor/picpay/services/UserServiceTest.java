@@ -1,11 +1,20 @@
 package com.victor.picpay.services;
 
-import com.victor.picpay.dtos.UserDTO;
-import com.victor.picpay.entities.User;
-import com.victor.picpay.enums.UserType;
-import com.victor.picpay.exceptions.UserNotFound;
-import com.victor.picpay.exceptions.WalletDataAlreadyExists;
-import com.victor.picpay.repositories.UserRepository;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import java.util.UUID;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,13 +24,16 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import com.victor.picpay.dtos.UserDTO;
+import com.victor.picpay.dtos.UserInfoDTO;
+import com.victor.picpay.entities.User;
+import com.victor.picpay.enums.UserType;
+import com.victor.picpay.exceptions.UserNotFoundException;
+import com.victor.picpay.exceptions.WalletDataAlreadyExists;
+import com.victor.picpay.mappers.UserMapper;
+import com.victor.picpay.repositories.UserRepository;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -29,6 +41,12 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private UserMapper userMapper;
 
     @InjectMocks
     private UserService userService;
@@ -42,12 +60,18 @@ class UserServiceTest {
         @DisplayName("Should Create A New User Successfully")
         void shouldCreateANewUserSuccessfully() {
             // Arrange
-            User user = new User("First Name Test",
-                    "Last Name Test",
-                    "00000000000",
-                    "email.test@gmail.com",
-                    "strongPasswordExample#123",
-                    UserType.REGULAR); // Create a user for the test
+
+            UUID userId = UUID.randomUUID();
+
+            User user = User.builder()
+            .id(userId)
+            .firstName("First Name Test")
+            .lastName("Last Name Test")
+            .cpfCnpj("00000000000")
+            .email("email.test@gmail.com")
+            .password("strongPasswordExample#123")
+            .userType(UserType.REGULAR)
+            .build();
 
             UserDTO input = new UserDTO(user.getFirstName(),
                     user.getLastName(),
@@ -56,10 +80,22 @@ class UserServiceTest {
                     user.getPassword(),
                     UserType.REGULAR); // Simulate a DTO with data of test user
 
-            when(userRepository.findByCpfCnpjOrEmail(anyString(), anyString()))
-                    .thenReturn(Optional.empty()); // Pass verification to not stop the test
+            UserInfoDTO dto = new UserInfoDTO(
+                userId,
+                user.getFirstName(),
+                user.getLastName(),
+                user.getUserType()
+            );
+
+            when(userRepository.findByCpfCnpjOrEmail(anyString(), anyString())).thenReturn(Optional.empty());
+                    
+            when(passwordEncoder.encode(user.getPassword())).thenReturn("encrypted_password");
+            
+            when(userMapper.dtoToUser(input)).thenReturn(user);
 
             doReturn(user).when(userRepository).save(userArgumentCaptor.capture());
+                    
+            when(userMapper.toInfoDto(user)).thenReturn(dto);
 
             // Act
             var output = userService.createUser(input);
@@ -68,12 +104,14 @@ class UserServiceTest {
 
             // Assert
             assertNotNull(output);
-            assertEquals(user.getFirstName(), userCaptured.getFirstName());
-            assertEquals(user.getLastName(), userCaptured.getLastName());
-            assertEquals(user.getCpfCnpj(), userCaptured.getCpfCnpj());
-            assertEquals(user.getEmail(), userCaptured.getEmail());
-            assertEquals(user.getPassword(), userCaptured.getPassword());
-            assertEquals(user.getUserType(), userCaptured.getUserType());
+            assertAll("Verify If User Was Created",
+                () -> assertEquals(user.getFirstName(), userCaptured.getFirstName()),
+                () -> assertEquals(user.getLastName(), userCaptured.getLastName()),
+                () -> assertEquals(user.getCpfCnpj(), userCaptured.getCpfCnpj()),
+                () -> assertEquals(user.getEmail(), userCaptured.getEmail()),
+                () -> assertEquals(user.getPassword(), userCaptured.getPassword()),
+                () -> assertEquals(user.getUserType(), userCaptured.getUserType())
+            );
             verify(userRepository, times(1))
                     .save(any(User.class)); // Verify how many times the repository used save method
         }
@@ -89,7 +127,7 @@ class UserServiceTest {
                     UserType.REGULAR);
 
             when(userRepository.findByCpfCnpjOrEmail(input.email(), input.cpfCnpj()))
-                    .thenReturn(Optional.of(new User()));
+                    .thenReturn(Optional.of(User.builder().build()));
 
             assertThrows(WalletDataAlreadyExists.class, () -> userService.createUser(input));
             verify(userRepository, never()).save(any());
@@ -102,12 +140,15 @@ class UserServiceTest {
         @DisplayName("Should Find An User By Id And Return It Successfully")
         void shouldFindAnUserByIdAndReturnItSuccessfully() {
             UUID userId = UUID.randomUUID();
-            User user = new User("First Name Test",
-                    "Last Name Test",
-                    "00000000000",
-                    "email.test@gmail.com",
-                    "strongPasswordExample#123",
-                    UserType.REGULAR);
+
+            User user = User.builder()
+            .firstName("First Name Test")
+            .lastName("Last Name Test")
+            .cpfCnpj("00000000000")
+            .email("email.test@gmail.com")
+            .password("strongPasswordExample#123")
+            .userType(UserType.REGULAR)
+            .build();
 
             user.setId(userId);
 
@@ -132,7 +173,7 @@ class UserServiceTest {
 
             when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-            assertThrows(UserNotFound.class, () -> userService.findUser(userId));
+            assertThrows(UserNotFoundException.class, () -> userService.findUser(userId));
 
         }
     }

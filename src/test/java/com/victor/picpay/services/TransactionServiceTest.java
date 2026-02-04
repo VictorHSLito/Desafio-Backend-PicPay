@@ -53,27 +53,28 @@ class TransactionServiceTest {
             UUID payerUUID = UUID.randomUUID();
             UUID payeeUUID = UUID.randomUUID();
 
-            User payer = new User(
-                    "Fist name payer",
-                    "Last name payer",
-                    "00000000000",
-                    "payer.test@gmail.com",
-                    "anyPassword#123",
-                    UserType.REGULAR
-            );
+            User payer = User.builder()
+            .firstName("Fist name payer")
+            .lastName("Last name payer")
+            .cpfCnpj("00000000000")
+            .email("payer.test@gmail.com")
+            .password("anyPassword#123")
+            .userType(UserType.REGULAR)
+            .build();
 
             payer.setId(payerUUID);
             Wallet payerWallet = new Wallet(UUID.randomUUID(), BigDecimal.valueOf(2000), payer);
             payer.setUserWallet(payerWallet);
 
-            User payee = new User(
-                    "Fist name payee",
-                    "Last name payee",
-                    "00000000001",
-                    "payee.test@gmail.com",
-                    "anyPassword#1234",
-                    UserType.MERCHANT
-            );
+
+            User payee = User.builder()
+            .firstName("Fist name payee")
+            .lastName("Last name payee")
+            .cpfCnpj("00000000001")
+            .email("payee.test@gmail.com")
+            .password("anyPassword#1234")
+            .userType(UserType.MERCHANT)
+            .build();
 
             payee.setId(payeeUUID);
             Wallet payeeWallet = new Wallet(UUID.randomUUID(), BigDecimal.valueOf(0), payee);
@@ -95,7 +96,7 @@ class TransactionServiceTest {
 
             doNothing().when(walletService).save(any(Wallet.class));
 
-            doReturn(new Transaction()).when(transactionRepository).save(any(Transaction.class));
+            doReturn(Transaction.builder().build()).when(transactionRepository).save(any(Transaction.class));
 
             doNothing().when(notificationService).sendNotification();
 
@@ -123,27 +124,27 @@ class TransactionServiceTest {
             UUID payerUUID = UUID.randomUUID();
             UUID payeeUUID = UUID.randomUUID();
 
-            User payer = new User(
-                    "Fist name payer",
-                    "Last name payer",
-                    "00000000000",
-                    "payer.test@gmail.com",
-                    "anyPassword#123",
-                    UserType.MERCHANT
-            );
+            User payer = User.builder()
+            .firstName("First name payer")
+            .lastName("Last name payer")
+            .cpfCnpj("00000000000")
+            .email("payer.test@gmail.com")
+            .password("anyPassword#123")
+            .userType(UserType.MERCHANT)
+            .build();
 
             payer.setId(payerUUID);
             Wallet payerWallet = new Wallet(UUID.randomUUID(), BigDecimal.valueOf(2000), payer);
             payer.setUserWallet(payerWallet);
 
-            User payee = new User(
-                    "Fist name payee",
-                    "Last name payee",
-                    "00000000001",
-                    "payee.test@gmail.com",
-                    "anyPassword#1234",
-                    UserType.MERCHANT
-            );
+            User payee = User.builder()
+            .firstName("First name payer")
+            .lastName("Last name payer")
+            .cpfCnpj("00000000001")
+            .email("payee.test@gmail.com")
+            .password("anyPassword#123")
+            .userType(UserType.MERCHANT)
+            .build();
 
             payee.setId(payeeUUID);
             Wallet payeeWallet = new Wallet(UUID.randomUUID(), BigDecimal.valueOf(0), payee);
@@ -174,27 +175,28 @@ class TransactionServiceTest {
             UUID payerUUID = UUID.randomUUID();
             UUID payeeUUID = UUID.randomUUID();
 
-            User payer = new User(
-                    "Fist name payer",
-                    "Last name payer",
-                    "00000000000",
-                    "payer.test@gmail.com",
-                    "anyPassword#123",
-                    UserType.REGULAR
-            );
+            User payer = User.builder()
+            .firstName("First name payer")
+            .lastName("Last name payer")
+            .cpfCnpj("00000000000")
+            .email("payer.test@gmail.com")
+            .password("anyPassword#123")
+            .userType(UserType.REGULAR)
+            .build();
 
             payer.setId(payerUUID);
             Wallet payerWallet = new Wallet(UUID.randomUUID(), BigDecimal.valueOf(2000), payer);
             payer.setUserWallet(payerWallet);
 
-            User payee = new User(
-                    "Fist name payee",
-                    "Last name payee",
-                    "00000000001",
-                    "payee.test@gmail.com",
-                    "anyPassword#1234",
-                    UserType.MERCHANT
-            );
+            
+            User payee = User.builder()
+            .firstName("First name payer")
+            .lastName("Last name payer")
+            .cpfCnpj("00000000001")
+            .email("payee.test@gmail.com")
+            .password("anyPassword#123")
+            .userType(UserType.MERCHANT)
+            .build();
 
             payee.setId(payeeUUID);
             Wallet payeeWallet = new Wallet(UUID.randomUUID(), BigDecimal.valueOf(0), payee);

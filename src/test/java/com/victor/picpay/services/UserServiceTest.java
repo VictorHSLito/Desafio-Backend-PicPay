@@ -29,7 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.victor.picpay.dtos.UserDTO;
 import com.victor.picpay.entities.User;
 import com.victor.picpay.enums.UserType;
-import com.victor.picpay.exceptions.UserNotFound;
+import com.victor.picpay.exceptions.UserNotFoundException;
 import com.victor.picpay.exceptions.WalletDataAlreadyExists;
 import com.victor.picpay.mappers.UserMapper;
 import com.victor.picpay.repositories.UserRepository;
@@ -161,7 +161,7 @@ class UserServiceTest {
 
             when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-            assertThrows(UserNotFound.class, () -> userService.findUser(userId));
+            assertThrows(UserNotFoundException.class, () -> userService.findUser(userId));
 
         }
     }

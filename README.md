@@ -153,10 +153,10 @@ A API expõe os seguintes endpoints principais para interação:
 
 Futuramente pretendo dar continuidade em algumas funções que ficaram faltando, dentre elas as que considero mais relevantes:
 
-- **Aprimorar Cobertura de Testes**: Implementar mais testes automatizados (unitários, de integração e end-to-end) para garantir a robustez e a confiabilidade das funcionalidades existentes e futuras.
+- ~~**Aprimorar Cobertura de Testes**: Implementar mais testes automatizados (unitários, de integração e end-to-end) para garantir a robustez e a confiabilidade das funcionalidades existentes e futuras.~~ **Realizado: Vide PR**[#9](https://github.com/VictorHSLito/Desafio-Backend-PicPay/pull/9)
 
 - ~~**Containerização Completa**: Utilizar ferramentas de containerização como Docker e Docker Compose para empacotar a aplicação e o banco de dados, facilitando o deploy em diferentes ambientes e garantindo a consistência.~~ **Realizado: Vide PR** [#1](https://github.com/VictorHSLito/Desafio-Backend-PicPay/pull/1)
 
-- **Expandir Endpoints da API**: Adicionar novos endpoints para operações de GET, PUT e DELETE para recursos como usuários e carteiras, permitindo uma gestão mais completa e flexível dos dados.
+- ~~**Expandir Endpoints da API**: Adicionar novos endpoints para operações de GET, PUT e DELETE para recursos como usuários e carteiras, permitindo uma gestão mais completa e flexível dos dados.~~ **Realizado: Vide PR**: [#5](https://github.com/VictorHSLito/Desafio-Backend-PicPay/pull/5)
 
 - **Arquitetura Mais Robusta e Escalável**: Explorar e implementar padrões de arquitetura que visem maior resiliência, manutenibilidade e capacidade de escalonamento do sistema, como microsserviços, event-driven, ou outras abordagens que se adequem aos requisitos de um sistema financeiro.

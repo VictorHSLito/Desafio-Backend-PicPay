@@ -65,12 +65,7 @@ public class UserService {
     }
 
     public List<UserInfoDTO> fetchAllUsersInfo() {
-        return userRepository.findAll().stream().map(u -> new UserInfoDTO(
-            u.getId(),
-            u.getFirstName(),
-            u.getLastName(),
-            u.getUserType()
-        )).toList();
+        return userRepository.findAll().stream().map(userMapper::toInfoDto).toList();
     }
 
     public SimpleMessageDTO updateUser(String userId, UpdateUserDTO userDTO) {

@@ -3,11 +3,14 @@ package com.victor.picpay.services;
 import com.victor.picpay.clients.services.AuthorizationService;
 import com.victor.picpay.clients.services.NotificationService;
 import com.victor.picpay.dtos.TransactionDTO;
+import com.victor.picpay.dtos.TransactionDetailsDTO;
 import com.victor.picpay.entities.Transaction;
 import com.victor.picpay.entities.User;
 import com.victor.picpay.entities.Wallet;
 import com.victor.picpay.enums.UserType;
+import com.victor.picpay.mappers.TransactionMapper;
 import com.victor.picpay.repositories.TransactionRepository;
+import com.victor.picpay.repositories.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,10 +20,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.nio.file.AccessDeniedException;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -28,6 +33,12 @@ import static org.mockito.Mockito.*;
 class TransactionServiceTest {
     @Mock
     private TransactionRepository transactionRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private TransactionMapper transactionMapper;
 
     @Mock
     private UserService userService;
@@ -221,6 +232,62 @@ class TransactionServiceTest {
             verify(transactionRepository, never()).save(any(Transaction.class));
             verify(notificationService, never()).sendNotification();
             verify(walletService, never()).save(any(Wallet.class));
+        }
+    }
+
+    @Nested
+    class FindTransactions {
+        @Test
+        @DisplayName("Should Show All User Transactions Correctly")
+        void shouldShowAllUserTransactionsCorrectly() throws AccessDeniedException {
+            UUID userId = UUID.randomUUID();
+
+            User userPayer = User.builder().id(userId).firstName("Test Payer").build();
+            User userPayee = User.builder().firstName("Test Payee").build();
+
+            Transaction transaction1 = Transaction.builder()
+                    .payer(userPayer)
+                    .payee(userPayee)
+                    .value(BigDecimal.valueOf(100L))
+                    .build();
+
+            Transaction transaction2 = Transaction.builder()
+                    .payer(userPayer)
+                    .payee(userPayee)
+                    .value(BigDecimal.valueOf(200L))
+                    .build();
+
+            Transaction transaction3 = Transaction.builder()
+                    .payer(userPayer)
+                    .payee(userPayee)
+                    .value(BigDecimal.valueOf(300L))
+                    .build();
+
+            TransactionDetailsDTO dto1 = new TransactionDetailsDTO("Test Payer", "Test Payee", BigDecimal.valueOf(100L), null);
+            TransactionDetailsDTO dto2 = new TransactionDetailsDTO("Test Payer", "Test Payee", BigDecimal.valueOf(200L), null);
+            TransactionDetailsDTO dto3 = new TransactionDetailsDTO("Test Payer", "Test Payee", BigDecimal.valueOf(300L), null);
+
+            List<Transaction> listOfTransactions = List.of(transaction1, transaction2, transaction3);
+
+            when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(userPayer));
+
+            when(transactionRepository.findByPayerEmail(anyString())).thenReturn(listOfTransactions);
+
+            when(transactionMapper.toDetailsDTO(any(Transaction.class))).thenReturn(dto1, dto2, dto3);
+
+            var output = transactionService.fetchAllTransactions(userId.toString(), anyString());
+
+            assertAll("Verify if all fields matches",
+                () -> assertEquals("Test Payer", output.get(0).payerName()),
+                () -> assertEquals("Test Payee", output.get(0).payeeName()),
+                () -> assertEquals(BigDecimal.valueOf(100L), output.get(0).value()),
+                () -> assertEquals("Test Payer", output.get(1).payerName()),
+                () -> assertEquals("Test Payee", output.get(1).payeeName()),
+                () -> assertEquals(BigDecimal.valueOf(200L), output.get(1).value()),
+                () -> assertEquals("Test Payer", output.get(2).payerName()),
+                () -> assertEquals("Test Payee", output.get(2).payeeName()),
+                () -> assertEquals(BigDecimal.valueOf(300L), output.get(2).value())
+            );
         }
     }
 }

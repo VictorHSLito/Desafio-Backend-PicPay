@@ -23,7 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import com.victor.picpay.dtos.LoginDTO;
+import com.victor.picpay.dtos.requests.LoginDTO;
 import com.victor.picpay.entities.User;
 import com.victor.picpay.repositories.UserRepository;
 import com.victor.picpay.security.jwt.JwtTokenService;

@@ -3,6 +3,7 @@ package com.victor.picpay.services;
 import com.victor.picpay.clients.services.AuthorizationService;
 import com.victor.picpay.clients.services.NotificationService;
 import com.victor.picpay.dtos.requests.TransactionDTO;
+import com.victor.picpay.dtos.responses.TransactionDetailsDTO;
 import com.victor.picpay.entities.Transaction;
 import com.victor.picpay.entities.User;
 import com.victor.picpay.entities.Wallet;

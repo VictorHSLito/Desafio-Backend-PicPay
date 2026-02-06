@@ -1,16 +1,13 @@
 package com.victor.picpay.services;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.math.BigDecimal;
-import java.util.Optional;
-import java.util.UUID;
-
+import com.victor.picpay.dtos.WalletDTO;
+import com.victor.picpay.dtos.WalletInfoDTO;
+import com.victor.picpay.entities.User;
+import com.victor.picpay.entities.Wallet;
+import com.victor.picpay.enums.UserType;
+import com.victor.picpay.mappers.WalletMapper;
+import com.victor.picpay.repositories.UserRepository;
+import com.victor.picpay.repositories.WalletRespository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -51,19 +48,19 @@ class WalletServiceTest {
             UUID userId = UUID.randomUUID();
 
             User user = User.builder()
-            .firstName("First Name Test")
-            .lastName("Last Name Test")
-            .cpfCnpj("00000000000")
-            .email("email.test@gmail.com")
-            .password("StrongPassWord#321")
-            .userType(UserType.REGULAR)
-            .build();
+                    .firstName("First Name Test")
+                    .lastName("Last Name Test")
+                    .cpfCnpj("00000000000")
+                    .email("email.test@gmail.com")
+                    .password("StrongPassWord#321")
+                    .userType(UserType.REGULAR)
+                    .build();
 
             user.setId(userId);
 
             WalletDTO walletDTO = new WalletDTO(BigDecimal.valueOf(3000), userId);
 
-            Wallet wallet = new Wallet(); 
+            Wallet wallet = new Wallet();
             wallet.setUser(user);
             wallet.setBalance(BigDecimal.valueOf(3000));
 
@@ -93,13 +90,13 @@ class WalletServiceTest {
             UUID userId = UUID.randomUUID();
 
             User user = User.builder()
-            .firstName("First Name Test")
-            .lastName("Last Name Test")
-            .cpfCnpj("00000000000")
-            .email("email.test@gmail.com")
-            .password("StrongPassWord#321")
-            .userType(UserType.REGULAR)
-            .build();
+                    .firstName("First Name Test")
+                    .lastName("Last Name Test")
+                    .cpfCnpj("00000000000")
+                    .email("email.test@gmail.com")
+                    .password("StrongPassWord#321")
+                    .userType(UserType.REGULAR)
+                    .build();
 
             user.setId(userId);
 
@@ -111,5 +108,53 @@ class WalletServiceTest {
                     "User not found!");
         }
 
+    }
+
+    @Nested
+    class RetrieveWalletInfo {
+        @Test
+        @DisplayName("Should Allow Only The Owner Get Info About Him Wallet")
+        void shouldAllowOnlyTheOwnerGetInfoAboutHimWallet() throws AccessDeniedException {
+            UUID walletId = UUID.randomUUID();
+
+            String email = "user-test@gmail.com";
+
+            User owner = User.builder().email(email).firstName("Owner").build();
+
+            Wallet wallet = Wallet.builder().id(walletId).user(owner).build();
+            WalletInfoDTO expectedDto = new WalletInfoDTO(BigDecimal.TEN,
+                    "Owner",
+                    "123",
+                    "REGULAR");
+
+            when(walletRespository.findById(walletId)).thenReturn(Optional.of(wallet));
+            when(walletMapper.fromWalletToDto(wallet)).thenReturn(expectedDto);
+
+            var output = walletService.getWalletIfOwner(walletId, email);
+
+            assertEquals(expectedDto, output);
+            assertAll("Verify if all info matches",
+                    () -> assertEquals(expectedDto.balance(), output.balance()),
+                    () -> assertEquals(expectedDto.userFirstName(), output.userFirstName()),
+                    () -> assertEquals(expectedDto.cpfCnpj(), output.cpfCnpj()),
+                    () -> assertEquals(expectedDto.userType(), output.userType())
+            );
+            verify(walletRespository).findById(walletId);
+        }
+
+        @Test
+        @DisplayName("Should Throw AccessDeniedException When User Email Is Wrong")
+        void shouldThrowAccessDeniedExceptionWhenUserEmailIsWrong() {
+            UUID walletId = UUID.randomUUID();
+
+            Wallet wallet = Wallet.builder()
+                    .user(User.builder().email("test-email@gmail.com").build())
+                    .build();
+
+            when(walletRespository.findById(walletId)).thenReturn(Optional.of(wallet));
+
+            Exception exception = assertThrows(AccessDeniedException.class, () -> walletService.getWalletIfOwner(walletId, anyString()));
+            assertEquals("You do not have permission to access this wallet.", exception.getMessage());
+        }
     }
 }

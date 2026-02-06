@@ -1,20 +1,15 @@
 package com.victor.picpay.services;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.victor.picpay.dtos.UpdateUserDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -175,6 +170,242 @@ class UserServiceTest {
 
             assertThrows(UserNotFoundException.class, () -> userService.findUser(userId));
 
+        }
+
+        @Test
+        @DisplayName("Should Fetch User Information Correctly")
+        void shouldFetchUserInformationCorrectly() {
+            UUID userId = UUID.randomUUID();
+
+            User user = User.builder()
+                    .id(userId)
+                    .firstName("First Name Test")
+                    .lastName("Last Name Test")
+                    .userType(UserType.REGULAR)
+                    .build();
+
+            UserInfoDTO expectedDto = new UserInfoDTO(
+                    userId,
+                    user.getFirstName(),
+                    user.getLastName(),
+                    user.getUserType()
+            );
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+            when(userMapper.toInfoDto(user)).thenReturn(expectedDto);
+
+            var output = userService.fetchUserInfo(userId);
+
+            assertEquals(expectedDto, output);
+            assertAll("Verify if all fields matches",
+                    () -> assertEquals(expectedDto.userId(), output.userId()),
+                    () -> assertEquals(expectedDto.firstName(), output.firstName()),
+                    () -> assertEquals(expectedDto.lastName(), output.lastName()),
+                    () -> assertEquals(expectedDto.userType(), output.userType())
+            );
+        }
+
+        @Test
+        @DisplayName("Should Throw Exception When User Id Is Incorrect")
+        void shouldThrowExceptionWhenUserIdIsIncorrect() {
+            UUID userId = UUID.randomUUID();
+
+            when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+            Exception exception = assertThrows(UserNotFoundException.class, () -> userService.fetchUserInfo(userId));
+
+            assertEquals("User cannot be found on database!", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("Should Return All Users Correctly")
+        void shouldReturnAllUsersCorrectly() {
+            User user1 = User.builder().build();
+            User user2 = User.builder().build();
+
+            List<User> userList = List.of(user1, user2);
+
+            UserInfoDTO dto1 = new UserInfoDTO(UUID.randomUUID(),
+                    "First Name Test",
+                    "Last Name Test",
+                    UserType.REGULAR);
+            UserInfoDTO dto2 = new UserInfoDTO(UUID.randomUUID(),
+                    "First Name Test",
+                    "Last Name Test",
+                    UserType.MERCHANT);
+
+            List<UserInfoDTO> expectedList = List.of(dto1, dto2);
+
+            when(userRepository.findAll()).thenReturn(userList);
+
+            when(userMapper.toInfoDto(any(User.class)))
+                    .thenReturn(dto1, dto2);
+
+            var output = userService.fetchAllUsersInfo();
+
+            assertEquals(expectedList, output);
+            assertEquals(expectedList.size(), output.size());
+        }
+    }
+
+    @Nested
+    class UpdateUser {
+        @Test
+        @DisplayName("Should Update User Correctly When One Field Is Passed")
+        void shouldUpdateUserWhenOneFieldIsPassedCorrectly() {
+
+            UUID userId = UUID.randomUUID();
+
+            User user = User.builder()
+                    .id(userId)
+                    .firstName("First Name")
+                    .build();
+
+            UpdateUserDTO dto = new UpdateUserDTO(
+                    "Test User",
+                    null,
+                    null,
+                    null
+            );
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+            doAnswer(invocation -> {
+                UpdateUserDTO dtoArg = invocation.getArgument(0);
+                User userArg = invocation.getArgument(1);
+                userArg.setFirstName(dtoArg.firstName());
+                return null;
+            }).when(userMapper).updateUserFromDto(any(UpdateUserDTO.class), any(User.class));
+
+            var output = userService.updateUser(userId.toString(), dto);
+
+            verify(userRepository).save(userArgumentCaptor.capture());
+
+            var userResult = userArgumentCaptor.getValue();
+
+            assertEquals("Campos atualizados com sucesso!", output.message());
+            assertEquals("Test User", userResult.getFirstName());
+        }
+
+        @Test
+        @DisplayName("Should Update User Correctly When Two Fields Is Passed")
+        void shouldUpdateUserWhenTwoFieldsIsPassedCorrectly() {
+
+            UUID userId = UUID.randomUUID();
+
+            User user = User.builder()
+                    .id(userId)
+                    .firstName("First Name")
+                    .lastName("Last Name")
+                    .build();
+
+            UpdateUserDTO dto = new UpdateUserDTO(
+                    "Test User",
+                    "Test User",
+                    null,
+                    null
+            );
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+            doAnswer(invocation -> {
+                UpdateUserDTO dtoArg = invocation.getArgument(0);
+                User userArg = invocation.getArgument(1);
+                userArg.setFirstName(dtoArg.firstName());
+                userArg.setLastName(dto.lastName());
+                return null;
+            }).when(userMapper).updateUserFromDto(any(UpdateUserDTO.class), any(User.class));
+
+            var output = userService.updateUser(userId.toString(), dto);
+
+            verify(userRepository).save(userArgumentCaptor.capture());
+
+            var userResult = userArgumentCaptor.getValue();
+
+            assertEquals("Campos atualizados com sucesso!", output.message());
+            assertEquals("Test User", userResult.getFirstName());
+            assertEquals("Test User", userResult.getLastName());
+        }
+
+        @Test
+        @DisplayName("Should Update User Correctly When All Fields Is Passed")
+        void shouldUpdateUserWhenAllFieldIsPassedCorrectly() {
+            UUID userId = UUID.randomUUID();
+
+            User user = User.builder()
+                    .id(userId)
+                    .firstName("First Name")
+                    .lastName("Last Name")
+                    .email("any.email@gmail.com")
+                    .password("anyPassword")
+                    .build();
+
+            UpdateUserDTO dto = new UpdateUserDTO(
+                    "Test User",
+                    "Test User",
+                    "user.email@test.com",
+                    "myNewPassword"
+            );
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+            when(passwordEncoder.encode(dto.password())).thenReturn("encrypted_password");
+
+            doAnswer(invocation -> {
+                UpdateUserDTO dtoArg = invocation.getArgument(0);
+                User userArg = invocation.getArgument(1);
+                userArg.setFirstName(dtoArg.firstName());
+                userArg.setLastName(dto.lastName());
+                userArg.setEmail(dto.email());
+                userArg.setPassword(passwordEncoder.encode(dto.password()));
+                return null;
+            }).when(userMapper).updateUserFromDto(any(UpdateUserDTO.class), any(User.class));
+
+            var output = userService.updateUser(userId.toString(), dto);
+
+            verify(userRepository).save(userArgumentCaptor.capture());
+
+            var userResult = userArgumentCaptor.getValue();
+
+            assertAll("Verify if all fields are correct",
+                () -> assertEquals("Campos atualizados com sucesso!", output.message()),
+                () -> assertEquals("Test User", userResult.getFirstName()),
+                () -> assertEquals("Test User", userResult.getLastName()),
+                () -> assertEquals("user.email@test.com", userResult.getEmail()),
+                () -> assertEquals("encrypted_password", userResult.getPassword())
+            );
+        }
+    }
+
+    @Nested
+    class DeleteUser {
+        @Test
+        @DisplayName("Should Delete User Correctly")
+        void shouldDeleteUserCorrectly() {
+            UUID userId = UUID.randomUUID();
+            User user = User.builder()
+                    .id(userId)
+                    .build();
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+            var output = userService.deleterUser(userId.toString());
+
+            verify(userRepository, times(1)).delete(user);
+            assertEquals("Usuário deletado com sucesso!", output.message());
+        }
+
+        @Test
+        @DisplayName("Should Throw UserNotFoundException When User Id Is Wrong")
+        void shouldThrowUserNotFoundExceptionWhenUserIdIsWrong() {
+            UUID userId = UUID.randomUUID();
+
+            when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+            assertThrows(UserNotFoundException.class, () -> userService.deleterUser(userId.toString()));
+
+            verify(userRepository, never()).delete(any());
         }
     }
 

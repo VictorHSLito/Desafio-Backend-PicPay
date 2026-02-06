@@ -1,4 +1,4 @@
-package com.victor.picpay.dtos;
+package com.victor.picpay.dtos.requests;
 
 import com.victor.picpay.enums.UserType;
 

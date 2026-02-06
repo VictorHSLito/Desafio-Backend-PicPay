@@ -26,8 +26,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.victor.picpay.dtos.UserDTO;
-import com.victor.picpay.dtos.UserInfoDTO;
+import com.victor.picpay.dtos.requests.UserDTO;
+import com.victor.picpay.dtos.responses.UserInfoDTO;
 import com.victor.picpay.entities.User;
 import com.victor.picpay.enums.UserType;
 import com.victor.picpay.exceptions.UserNotFoundException;

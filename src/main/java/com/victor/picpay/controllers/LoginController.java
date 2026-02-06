@@ -1,6 +1,6 @@
 package com.victor.picpay.controllers;
 
-import com.victor.picpay.dtos.LoginDTO;
+import com.victor.picpay.dtos.requests.LoginDTO;
 import com.victor.picpay.security.jwt.RecoveryJwtTokenDTO;
 import com.victor.picpay.services.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;

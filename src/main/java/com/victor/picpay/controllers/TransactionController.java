@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.victor.picpay.dtos.TransactionDTO;
-import com.victor.picpay.dtos.TransactionDetailsDTO;
+import com.victor.picpay.dtos.requests.TransactionDTO;
+import com.victor.picpay.dtos.responses.TransactionDetailsDTO;
 import com.victor.picpay.services.TransactionService;
 
 @RestController

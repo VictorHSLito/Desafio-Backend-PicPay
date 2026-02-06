@@ -6,9 +6,9 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-import com.victor.picpay.dtos.UpdateUserDTO;
-import com.victor.picpay.dtos.UserDTO;
-import com.victor.picpay.dtos.UserInfoDTO;
+import com.victor.picpay.dtos.requests.UpdateUserDTO;
+import com.victor.picpay.dtos.requests.UserDTO;
+import com.victor.picpay.dtos.responses.UserInfoDTO;
 import com.victor.picpay.entities.User;
 
 @Mapper(componentModel = "spring")

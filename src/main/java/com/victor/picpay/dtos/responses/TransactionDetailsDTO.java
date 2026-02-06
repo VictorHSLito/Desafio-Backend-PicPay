@@ -1,4 +1,4 @@
-package com.victor.picpay.dtos;
+package com.victor.picpay.dtos.responses;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

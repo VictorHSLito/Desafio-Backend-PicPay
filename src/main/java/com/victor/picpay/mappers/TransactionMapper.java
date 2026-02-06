@@ -3,7 +3,7 @@ package com.victor.picpay.mappers;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.victor.picpay.dtos.TransactionDetailsDTO;
+import com.victor.picpay.dtos.responses.TransactionDetailsDTO;
 import com.victor.picpay.entities.Transaction;
 
 @Mapper(componentModel = "spring")

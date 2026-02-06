@@ -20,7 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.victor.picpay.dtos.WalletDTO;
+import com.victor.picpay.dtos.requests.WalletDTO;
 import com.victor.picpay.entities.User;
 import com.victor.picpay.entities.Wallet;
 import com.victor.picpay.enums.UserType;

@@ -81,7 +81,7 @@ public class TransactionService {
         }
 
         
-        return listTransaction.stream().map(t -> transactionMapper.toDetailsDTO(t)).toList();
+        return listTransaction.stream().map(transactionMapper::toDetailsDTO).toList();
     }
 
 

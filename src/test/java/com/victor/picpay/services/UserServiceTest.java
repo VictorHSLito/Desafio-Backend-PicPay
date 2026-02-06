@@ -21,12 +21,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.victor.picpay.dtos.UserDTO;
-import com.victor.picpay.dtos.UserInfoDTO;
+import com.victor.picpay.dtos.requests.UserDTO;
+import com.victor.picpay.dtos.responses.UserInfoDTO;
 import com.victor.picpay.entities.User;
 import com.victor.picpay.enums.UserType;
 import com.victor.picpay.exceptions.UserNotFoundException;
-import com.victor.picpay.exceptions.WalletDataAlreadyExists;
+import com.victor.picpay.exceptions.UserDataAlreadyExists;
 import com.victor.picpay.mappers.UserMapper;
 import com.victor.picpay.repositories.UserRepository;
 
@@ -124,7 +124,7 @@ class UserServiceTest {
             when(userRepository.findByCpfCnpjOrEmail(input.email(), input.cpfCnpj()))
                     .thenReturn(Optional.of(User.builder().build()));
 
-            assertThrows(WalletDataAlreadyExists.class, () -> userService.createUser(input));
+            assertThrows(UserDataAlreadyExists.class, () -> userService.createUser(input));
             verify(userRepository, never()).save(any());
         }
     }

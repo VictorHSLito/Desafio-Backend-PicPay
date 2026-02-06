@@ -3,6 +3,8 @@ package com.victor.picpay.controllers;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.victor.picpay.dtos.TransactionDTO;
-import com.victor.picpay.dtos.TransactionDetailsDTO;
+import com.victor.picpay.dtos.requests.TransactionDTO;
+import com.victor.picpay.dtos.responses.TransactionDetailsDTO;
 import com.victor.picpay.services.TransactionService;
 
 @RestController
@@ -26,8 +28,9 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-    @PostMapping("/")
-    public ResponseEntity<Void> realizeTransfer(@RequestBody TransactionDTO transactionDTO) {
+    @Transactional
+    @PostMapping
+    public ResponseEntity<Void> realizeTransfer(@RequestBody @Valid TransactionDTO transactionDTO) {
         transactionService.executeTransferation(transactionDTO);
         return ResponseEntity.accepted().build();
     }

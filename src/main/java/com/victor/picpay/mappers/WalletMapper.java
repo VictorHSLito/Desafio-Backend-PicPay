@@ -4,8 +4,8 @@ import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.victor.picpay.dtos.WalletDTO;
-import com.victor.picpay.dtos.WalletInfoDTO;
+import com.victor.picpay.dtos.requests.WalletDTO;
+import com.victor.picpay.dtos.responses.WalletInfoDTO;
 import com.victor.picpay.entities.Wallet;
 
 @Mapper(componentModel = "spring")

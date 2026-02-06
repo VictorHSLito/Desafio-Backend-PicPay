@@ -6,14 +6,14 @@ import java.util.UUID;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.victor.picpay.dtos.SimpleMessageDTO;
-import com.victor.picpay.dtos.UpdateUserDTO;
-import com.victor.picpay.dtos.UserDTO;
-import com.victor.picpay.dtos.UserInfoDTO;
+import com.victor.picpay.dtos.responses.SimpleMessageDTO;
+import com.victor.picpay.dtos.requests.UpdateUserDTO;
+import com.victor.picpay.dtos.requests.UserDTO;
+import com.victor.picpay.dtos.responses.UserInfoDTO;
 import com.victor.picpay.entities.User;
 import com.victor.picpay.enums.UserType;
 import com.victor.picpay.exceptions.UserNotFoundException;
-import com.victor.picpay.exceptions.WalletDataAlreadyExists;
+import com.victor.picpay.exceptions.UserDataAlreadyExists;
 import com.victor.picpay.mappers.UserMapper;
 import com.victor.picpay.repositories.UserRepository;
 
@@ -35,7 +35,7 @@ public class UserService {
     public UserInfoDTO createUser(UserDTO userDTO) {
         var wallet = userRepository.findByCpfCnpjOrEmail(userDTO.email(), userDTO.cpfCnpj());
         if (wallet.isPresent()) {
-            throw new WalletDataAlreadyExists("CPF or CNPJ already exists");
+            throw new UserDataAlreadyExists("CPF or CNPJ already exists");
         }
 
         var encryptedPassword = passwordEncoder.encode(userDTO.password());

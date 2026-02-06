@@ -5,8 +5,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.victor.picpay.dtos.WalletDTO;
-import com.victor.picpay.dtos.WalletInfoDTO;
+import com.victor.picpay.dtos.requests.WalletDTO;
+import com.victor.picpay.dtos.responses.WalletInfoDTO;
 import com.victor.picpay.entities.Wallet;
 import com.victor.picpay.exceptions.UserNotFoundException;
 import com.victor.picpay.exceptions.WalletNotFoundException;

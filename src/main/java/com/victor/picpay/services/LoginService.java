@@ -1,6 +1,6 @@
 package com.victor.picpay.services;
 
-import com.victor.picpay.dtos.LoginDTO;
+import com.victor.picpay.dtos.requests.LoginDTO;
 import com.victor.picpay.repositories.UserRepository;
 import com.victor.picpay.security.jwt.JwtTokenService;
 import com.victor.picpay.security.jwt.RecoveryJwtTokenDTO;

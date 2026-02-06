@@ -17,14 +17,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
-import java.nio.file.AccessDeniedException;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import com.victor.picpay.dtos.requests.WalletDTO;
+import com.victor.picpay.entities.User;
+import com.victor.picpay.entities.Wallet;
+import com.victor.picpay.enums.UserType;
+import com.victor.picpay.mappers.WalletMapper;
+import com.victor.picpay.repositories.UserRepository;
+import com.victor.picpay.repositories.WalletRespository;
 
 @ExtendWith(MockitoExtension.class)
 class WalletServiceTest {

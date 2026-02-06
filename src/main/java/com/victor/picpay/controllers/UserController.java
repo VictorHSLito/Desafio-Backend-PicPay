@@ -3,6 +3,8 @@ package com.victor.picpay.controllers;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,8 +32,9 @@ public class UserController {
         this.userService = userService;
     }
 
+    @Transactional
     @PostMapping("/create")
-    public ResponseEntity<UserInfoDTO> createUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserInfoDTO> createUser(@RequestBody @Valid UserDTO userDTO) {
         var user = userService.createUser(userDTO);
         return ResponseEntity.ok(user);
     }
@@ -40,13 +43,15 @@ public class UserController {
     public ResponseEntity<UserInfoDTO> showInfo(@PathVariable("id") String userId) {
         var user = userService.fetchUserInfo(UUID.fromString(userId));
         return ResponseEntity.ok().body(user);
-    };
+    }
 
+    @Transactional
     @PutMapping("/update/{id}")
-    public ResponseEntity<SimpleMessageDTO> update(@PathVariable("id") String userId, @RequestBody UpdateUserDTO dto) {
+    public ResponseEntity<SimpleMessageDTO> update(@PathVariable("id") String userId, @RequestBody @Valid UpdateUserDTO dto) {
         return ResponseEntity.ok().body(userService.updateUser(userId, dto));
     }
 
+    @Transactional
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<SimpleMessageDTO> delete(@PathVariable("id") String userId) {
         return ResponseEntity.ok().body(userService.deleterUser(userId));

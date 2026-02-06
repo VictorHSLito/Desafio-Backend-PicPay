@@ -3,6 +3,7 @@ package com.victor.picpay.controllers;
 import java.nio.file.AccessDeniedException;
 import java.util.UUID;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,7 +28,7 @@ public class WalletController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Void> createWallet(@RequestBody WalletDTO walletDTO) {
+    public ResponseEntity<Void> createWallet(@RequestBody @Valid WalletDTO walletDTO) {
         walletService.save(walletDTO);
         return ResponseEntity.accepted().build();
     }

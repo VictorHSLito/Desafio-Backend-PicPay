@@ -24,5 +24,5 @@ public record UserDTO(
         @Size(min = 5, message = "{spring.validation.password}")
         String password,
 
-        @NotBlank
+        @NotBlank(groups = UserType.class)
         UserType userType) {}

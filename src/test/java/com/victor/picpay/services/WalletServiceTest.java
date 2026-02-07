@@ -7,7 +7,7 @@ import com.victor.picpay.entities.Wallet;
 import com.victor.picpay.enums.UserType;
 import com.victor.picpay.mappers.WalletMapper;
 import com.victor.picpay.repositories.UserRepository;
-import com.victor.picpay.repositories.WalletRespository;
+import com.victor.picpay.repositories.WalletRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,9 +16,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.math.BigDecimal;
-import java.nio.file.AccessDeniedException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 class WalletServiceTest {
 
     @Mock
-    private WalletRespository walletRespository;
+    private WalletRepository walletRepository;
 
     @Mock
     private UserRepository userRepository;
@@ -75,7 +75,7 @@ class WalletServiceTest {
 
             ArgumentCaptor<Wallet> walletCaptured = ArgumentCaptor.forClass(Wallet.class);
 
-            verify(walletRespository, times(1)).save(walletCaptured.capture());
+            verify(walletRepository, times(1)).save(walletCaptured.capture());
 
             Wallet savedWallet = walletCaptured.getValue();
 
@@ -83,7 +83,6 @@ class WalletServiceTest {
 
             assertEquals(user.getId(), savedWallet.getUser().getId());
         }
-
 
         @Test
         @DisplayName("Should Not Create Wallet When User Doesn't Exists")
@@ -108,14 +107,13 @@ class WalletServiceTest {
             assertThrows(RuntimeException.class, () -> walletService.save(walletDTO),
                     "User not found!");
         }
-
     }
 
     @Nested
     class RetrieveWalletInfo {
         @Test
         @DisplayName("Should Allow Only The Owner Get Info About Him Wallet")
-        void shouldAllowOnlyTheOwnerGetInfoAboutHimWallet() throws AccessDeniedException {
+        void shouldAllowOnlyTheOwnerGetInfoAboutHimWallet() {
             UUID walletId = UUID.randomUUID();
 
             String email = "user-test@gmail.com";
@@ -128,7 +126,7 @@ class WalletServiceTest {
                     "123",
                     "REGULAR");
 
-            when(walletRespository.findById(walletId)).thenReturn(Optional.of(wallet));
+            when(walletRepository.findById(walletId)).thenReturn(Optional.of(wallet));
             when(walletMapper.fromWalletToDto(wallet)).thenReturn(expectedDto);
 
             var output = walletService.getWalletIfOwner(walletId, email);
@@ -140,7 +138,7 @@ class WalletServiceTest {
                     () -> assertEquals(expectedDto.cpfCnpj(), output.cpfCnpj()),
                     () -> assertEquals(expectedDto.userType(), output.userType())
             );
-            verify(walletRespository).findById(walletId);
+            verify(walletRepository).findById(walletId);
         }
 
         @Test
@@ -152,7 +150,7 @@ class WalletServiceTest {
                     .user(User.builder().email("test-email@gmail.com").build())
                     .build();
 
-            when(walletRespository.findById(walletId)).thenReturn(Optional.of(wallet));
+            when(walletRepository.findById(walletId)).thenReturn(Optional.of(wallet));
 
             Exception exception = assertThrows(AccessDeniedException.class, () -> walletService.getWalletIfOwner(walletId, anyString()));
             assertEquals("You do not have permission to access this wallet.", exception.getMessage());

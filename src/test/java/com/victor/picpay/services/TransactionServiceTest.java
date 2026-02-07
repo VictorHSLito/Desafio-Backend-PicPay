@@ -105,15 +105,13 @@ class TransactionServiceTest {
 
             doReturn(true).when(authorizationService).validateTransfer();
 
-            doNothing().when(walletService).save(any(Wallet.class));
-
             doReturn(Transaction.builder().build()).when(transactionRepository).save(any(Transaction.class));
 
             doNothing().when(notificationService).sendNotification();
 
             // Act
 
-            transactionService.executeTransferation(transactionDTO);
+            var result = transactionService.executeTransferation(transactionDTO);
 
             // Assert
             verify(userService, times(1)).findUser(payerUUID);
@@ -124,9 +122,13 @@ class TransactionServiceTest {
             assertEquals(BigDecimal.valueOf(0), payer.getUserWallet().getBalance());
             assertEquals(BigDecimal.valueOf(2000), payee.getUserWallet().getBalance());
 
-            verify(walletService, times(2)).save(any(Wallet.class));
             verify(transactionRepository, times(1)).save(any(Transaction.class));
             verify(notificationService, times(1)).sendNotification();
+            assertNotNull(result);
+            assertEquals(payer.getFirstName(), result.payerName());
+            assertEquals(payee.getFirstName(), result.payeeName());
+            assertEquals(transactionDTO.value(), result.value());
+            assertNotNull(result.date());
         }
 
         @Test
@@ -275,7 +277,7 @@ class TransactionServiceTest {
 
             when(transactionMapper.toDetailsDTO(any(Transaction.class))).thenReturn(dto1, dto2, dto3);
 
-            var output = transactionService.fetchAllTransactions(userId.toString(), anyString());
+            var output = transactionService.fetchAllTransactions(userId, anyString());
 
             assertAll("Verify if all fields matches",
                 () -> assertEquals("Test Payer", output.get(0).payerName()),

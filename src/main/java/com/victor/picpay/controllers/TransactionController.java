@@ -1,23 +1,17 @@
 package com.victor.picpay.controllers;
 
-import java.nio.file.AccessDeniedException;
-import java.util.List;
-
-import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.victor.picpay.dtos.requests.TransactionDTO;
 import com.victor.picpay.dtos.responses.TransactionDetailsDTO;
 import com.victor.picpay.services.TransactionService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/transfer")
@@ -28,15 +22,14 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-    @Transactional
     @PostMapping
-    public ResponseEntity<Void> realizeTransfer(@RequestBody @Valid TransactionDTO transactionDTO) {
-        transactionService.executeTransferation(transactionDTO);
-        return ResponseEntity.accepted().build();
+    public ResponseEntity<TransactionDetailsDTO> realizeTransfer(@RequestBody @Valid TransactionDTO transactionDTO) {
+        var transactionDetails = transactionService.executeTransferation(transactionDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(transactionDetails);
     }
 
     @GetMapping("{userId}")
-    public ResponseEntity<List<TransactionDetailsDTO>> showTransactions(@PathVariable String userId, @AuthenticationPrincipal UserDetails userDetails) throws AccessDeniedException {
+    public ResponseEntity<List<TransactionDetailsDTO>> showTransactions(@PathVariable UUID userId, @AuthenticationPrincipal UserDetails userDetails) {
         String userEmail = userDetails.getUsername();
 
         var listOfTransactions = transactionService.fetchAllTransactions(userId, userEmail);

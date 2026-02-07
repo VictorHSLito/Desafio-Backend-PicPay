@@ -8,7 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.victor.picpay.entities.Transaction;
 
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
-    List<Transaction> findByPayerId(UUID userId);
-
     List<Transaction> findByPayerEmail(String email);
 }

@@ -121,7 +121,7 @@ class UserServiceTest {
                     "strongPasswordExample#123",
                     UserType.REGULAR);
 
-            when(userRepository.findByCpfCnpjOrEmail(input.email(), input.cpfCnpj()))
+            when(userRepository.findByCpfCnpjOrEmail(input.cpfCnpj(), input.email()))
                     .thenReturn(Optional.of(User.builder().build()));
 
             assertThrows(UserDataAlreadyExists.class, () -> userService.createUser(input));
@@ -215,7 +215,7 @@ class UserServiceTest {
 
             Exception exception = assertThrows(UserNotFoundException.class, () -> userService.fetchUserInfo(userId));
 
-            assertEquals("User cannot be found on database!", exception.getMessage());
+            assertEquals("User cannot be found", exception.getMessage());
         }
 
         @Test
@@ -278,7 +278,7 @@ class UserServiceTest {
                 return null;
             }).when(userMapper).updateUserFromDto(any(UpdateUserDTO.class), any(User.class));
 
-            var output = userService.updateUser(userId.toString(), dto);
+            var output = userService.updateUser(userId, dto);
 
             verify(userRepository).save(userArgumentCaptor.capture());
 
@@ -317,7 +317,7 @@ class UserServiceTest {
                 return null;
             }).when(userMapper).updateUserFromDto(any(UpdateUserDTO.class), any(User.class));
 
-            var output = userService.updateUser(userId.toString(), dto);
+            var output = userService.updateUser(userId, dto);
 
             verify(userRepository).save(userArgumentCaptor.capture());
 
@@ -362,7 +362,7 @@ class UserServiceTest {
                 return null;
             }).when(userMapper).updateUserFromDto(any(UpdateUserDTO.class), any(User.class));
 
-            var output = userService.updateUser(userId.toString(), dto);
+            var output = userService.updateUser(userId, dto);
 
             verify(userRepository).save(userArgumentCaptor.capture());
 
@@ -390,7 +390,7 @@ class UserServiceTest {
 
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-            var output = userService.deleterUser(userId.toString());
+            var output = userService.deleteUser(userId);
 
             verify(userRepository, times(1)).delete(user);
             assertEquals("Usuário deletado com sucesso!", output.message());
@@ -403,7 +403,7 @@ class UserServiceTest {
 
             when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-            assertThrows(UserNotFoundException.class, () -> userService.deleterUser(userId.toString()));
+            assertThrows(UserNotFoundException.class, () -> userService.deleteUser(userId));
 
             verify(userRepository, never()).delete(any());
         }

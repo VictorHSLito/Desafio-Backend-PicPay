@@ -1,8 +1,10 @@
 package com.victor.picpay.services;
 
-import java.nio.file.AccessDeniedException;
 import java.util.UUID;
 
+import com.victor.picpay.entities.User;
+import jakarta.transaction.Transactional;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.victor.picpay.dtos.requests.WalletDTO;
@@ -12,46 +14,51 @@ import com.victor.picpay.exceptions.UserNotFoundException;
 import com.victor.picpay.exceptions.WalletNotFoundException;
 import com.victor.picpay.mappers.WalletMapper;
 import com.victor.picpay.repositories.UserRepository;
-import com.victor.picpay.repositories.WalletRespository;
+import com.victor.picpay.repositories.WalletRepository;
 
 @Service
 public class WalletService {
-    private final WalletRespository walletRespository;
+    private final WalletRepository walletRepository;
 
     private final UserRepository userRepository;
 
     private final WalletMapper walletMapper;
 
-    public WalletService(WalletRespository walletRespository, UserRepository userRepository, WalletMapper walletMapper) {
-        this.walletRespository = walletRespository;
+    public WalletService(WalletRepository walletRepository, UserRepository userRepository, WalletMapper walletMapper) {
+        this.walletRepository = walletRepository;
         this.userRepository = userRepository;
         this.walletMapper = walletMapper;
     }
 
+    @Transactional
     public void save(WalletDTO walletDTO) {
-
         UUID userId = walletDTO.userId();
 
-        if (verifyIfUserExists(userId)) {
-            Wallet wallet = walletMapper.dtoToWallet(walletDTO);
-            walletRespository.save(wallet);
+        var user = verifyIfUserExists(userId);
+
+        if (user.getUserWallet() != null) {
+            throw new IllegalStateException("User already has a wallet!");
         }
+
+        Wallet wallet = walletMapper.dtoToWallet(walletDTO);
+
+        wallet.setUser(user);
+
+        walletRepository.save(wallet);
     }
 
     public void save(Wallet wallet) {
-        walletRespository.save(wallet);
+        walletRepository.save(wallet);
     }
 
-    private boolean verifyIfUserExists(UUID userId) throws UserNotFoundException {
-        userRepository.findById(userId)
+    private User verifyIfUserExists(UUID userId) {
+        return userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException("User not found!"));
-
-        return true;
     }
 
-    public WalletInfoDTO getWalletIfOwner(UUID walletId, String authenticatedUserEmail) throws AccessDeniedException {
+    public WalletInfoDTO getWalletIfOwner(UUID walletId, String authenticatedUserEmail){
         // 1. Busca a wallet
-        Wallet wallet = walletRespository.findById(walletId)
+        Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new WalletNotFoundException("Wallet not found!"));
 
         // 2. Verifica se o dono da wallet é o mesmo do token
@@ -61,6 +68,5 @@ public class WalletService {
         }
 
         return walletMapper.fromWalletToDto(wallet);
-
     }
 }

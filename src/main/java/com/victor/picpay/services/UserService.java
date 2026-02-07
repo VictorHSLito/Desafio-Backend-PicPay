@@ -3,6 +3,7 @@ package com.victor.picpay.services;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,9 +33,11 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
+    @Transactional
     public UserInfoDTO createUser(UserDTO userDTO) {
-        var wallet = userRepository.findByCpfCnpjOrEmail(userDTO.email(), userDTO.cpfCnpj());
-        if (wallet.isPresent()) {
+        var userExists = userRepository.findByCpfCnpjOrEmail(userDTO.cpfCnpj(), userDTO.email());
+
+        if (userExists.isPresent()) {
             throw new UserDataAlreadyExists("CPF or CNPJ already exists");
         }
 
@@ -50,17 +53,11 @@ public class UserService {
     }
 
     public User findUser(UUID uuid) {
-        return userRepository
-                .findById(uuid)
-                .orElseThrow(() ->
-                        new UserNotFoundException("User cannot be found on database!"));
+        return verifyIfUserExists(uuid);
     }
 
     public UserInfoDTO fetchUserInfo(UUID id) {
-        User user = userRepository
-                .findById(id)
-                .orElseThrow(() ->
-                        new UserNotFoundException("User cannot be found on database!"));
+        User user = verifyIfUserExists(id);
         return userMapper.toInfoDto(user);
     }
 
@@ -68,8 +65,9 @@ public class UserService {
         return userRepository.findAll().stream().map(userMapper::toInfoDto).toList();
     }
 
-    public SimpleMessageDTO updateUser(String userId, UpdateUserDTO userDTO) {
-        User user = userRepository.findById(UUID.fromString(userId)).orElseThrow(() -> new UserNotFoundException("User not found"));
+    @Transactional
+    public SimpleMessageDTO updateUser(UUID userId, UpdateUserDTO userDTO) {
+        User user = verifyIfUserExists(userId);
         
         userMapper.updateUserFromDto(userDTO, user);
 
@@ -83,8 +81,9 @@ public class UserService {
         return new SimpleMessageDTO("Campos atualizados com sucesso!");
     }
 
-    public SimpleMessageDTO deleterUser(String userId) {
-        User user = userRepository.findById(UUID.fromString(userId)).orElseThrow(() -> new UserNotFoundException("User not found!"));
+    @Transactional
+    public SimpleMessageDTO deleteUser(UUID userId) {
+        User user = verifyIfUserExists(userId);
 
         userRepository.delete(user);
 
@@ -95,5 +94,8 @@ public class UserService {
         return user.getUserType().equals(UserType.MERCHANT) ;
     }
 
-    
+    private User verifyIfUserExists(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User cannot be found"));
+    }
 }

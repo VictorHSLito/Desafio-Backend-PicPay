@@ -1,26 +1,18 @@
 package com.victor.picpay.controllers;
 
-import java.util.List;
-import java.util.UUID;
-
-import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.victor.picpay.dtos.responses.SimpleMessageDTO;
 import com.victor.picpay.dtos.requests.UpdateUserDTO;
 import com.victor.picpay.dtos.requests.UserDTO;
+import com.victor.picpay.dtos.responses.SimpleMessageDTO;
 import com.victor.picpay.dtos.responses.UserInfoDTO;
 import com.victor.picpay.services.UserService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")
@@ -32,29 +24,26 @@ public class UserController {
         this.userService = userService;
     }
 
-    @Transactional
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<UserInfoDTO> createUser(@RequestBody @Valid UserDTO userDTO) {
         var user = userService.createUser(userDTO);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserInfoDTO> showInfo(@PathVariable("id") String userId) {
-        var user = userService.fetchUserInfo(UUID.fromString(userId));
+    public ResponseEntity<UserInfoDTO> showInfo(@PathVariable("id") UUID userId) {
+        var user = userService.fetchUserInfo(userId);
         return ResponseEntity.ok().body(user);
     }
 
-    @Transactional
-    @PutMapping("/update/{id}")
-    public ResponseEntity<SimpleMessageDTO> update(@PathVariable("id") String userId, @RequestBody @Valid UpdateUserDTO dto) {
+    @PutMapping("/{id}")
+    public ResponseEntity<SimpleMessageDTO> update(@PathVariable("id") UUID userId, @RequestBody @Valid UpdateUserDTO dto) {
         return ResponseEntity.ok().body(userService.updateUser(userId, dto));
     }
 
-    @Transactional
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<SimpleMessageDTO> delete(@PathVariable("id") String userId) {
-        return ResponseEntity.ok().body(userService.deleterUser(userId));
+    @DeleteMapping("/{id}")
+    public ResponseEntity<SimpleMessageDTO> delete(@PathVariable("id") UUID userId) {
+        return ResponseEntity.ok().body(userService.deleteUser(userId));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

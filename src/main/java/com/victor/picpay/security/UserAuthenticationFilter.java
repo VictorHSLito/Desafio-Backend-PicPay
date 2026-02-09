@@ -2,6 +2,7 @@ package com.victor.picpay.security;
 
 import java.io.IOException;
 
+import com.victor.picpay.exceptions.UserNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,9 +20,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class UserAuthenticationFilter extends OncePerRequestFilter {
-    
+
     private final JwtTokenService jwtTokenService;
-    
+
     private final UserRepository userRepository;
 
     public UserAuthenticationFilter(JwtTokenService jwtTokenService, UserRepository userRepository) {
@@ -36,7 +37,7 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             String subject = jwtTokenService.getSubjectFromToken(token);
-            User user = userRepository.findByEmail(subject).get();
+            User user = userRepository.findByEmail(subject).orElseThrow(() -> new UserNotFoundException("User not found!"));
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 
@@ -44,7 +45,6 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
-
 
     private String recoveryToken(HttpServletRequest request) {
         String authorizationHeader = request.getHeader("Authorization");

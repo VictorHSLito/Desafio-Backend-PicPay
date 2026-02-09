@@ -3,6 +3,7 @@ package com.victor.picpay.controllers;
 import com.victor.picpay.dtos.requests.LoginDTO;
 import com.victor.picpay.security.jwt.RecoveryJwtTokenDTO;
 import com.victor.picpay.services.LoginService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/login")
+@Tag(name = "Login", description = "Responsável pelo login de usuários")
 public class LoginController {
 
     private final LoginService loginService;

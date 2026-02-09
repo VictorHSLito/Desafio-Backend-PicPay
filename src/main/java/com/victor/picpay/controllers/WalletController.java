@@ -3,6 +3,8 @@ package com.victor.picpay.controllers;
 import com.victor.picpay.dtos.requests.WalletDTO;
 import com.victor.picpay.dtos.responses.WalletInfoDTO;
 import com.victor.picpay.services.WalletService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,8 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/wallet")
+@SecurityRequirement(name = "Bearer Token")
+@Tag(name = "Carteiras", description = "Responsável pela criação e visualização de carteiras")
 public class WalletController {
     private final WalletService walletService;
 

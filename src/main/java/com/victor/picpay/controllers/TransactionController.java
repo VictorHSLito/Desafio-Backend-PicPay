@@ -3,6 +3,8 @@ package com.victor.picpay.controllers;
 import com.victor.picpay.dtos.requests.TransactionDTO;
 import com.victor.picpay.dtos.responses.TransactionDetailsDTO;
 import com.victor.picpay.services.TransactionService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,8 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/transfer")
+@SecurityRequirement(name = "Bearer Token")
+@Tag(name = "Transações", description = "Responsável pelas transações dos usuários")
 public class TransactionController {
     private final TransactionService transactionService;
 

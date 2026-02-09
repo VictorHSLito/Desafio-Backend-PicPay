@@ -10,5 +10,5 @@ public record LoginDTO(
         String email,
 
         @NotBlank
-        @Size(min = 2, message = "${spring.validation.password}")
+        @Size(min = 5, message = "${spring.validation.password}")
         String password) {}

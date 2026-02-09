@@ -26,16 +26,18 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, UserAuthenticationFilter userAuthenticationFilter) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize->
-                        authorize.requestMatchers(HttpMethod.POST, "/login/**").permitAll()
-                        .requestMatchers("/user/create", "/user/update/**").permitAll()
+                        authorize
+                                .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/user").permitAll()
+                                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(this.userAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(userAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

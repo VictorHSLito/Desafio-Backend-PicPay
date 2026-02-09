@@ -19,6 +19,9 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.victor.picpay.dtos.requests.UserDTO;
@@ -48,6 +51,9 @@ class UserServiceTest {
 
     @Captor
     private ArgumentCaptor<User> userArgumentCaptor;
+
+    @Mock
+    private Pageable pageable;
 
     @Nested
     class CreateUserTest {
@@ -235,17 +241,17 @@ class UserServiceTest {
                     "Last Name Test",
                     UserType.MERCHANT);
 
-            List<UserInfoDTO> expectedList = List.of(dto1, dto2);
+            Page<User> userPage = new PageImpl<>(userList, pageable, userList.size());
 
-            when(userRepository.findAll()).thenReturn(userList);
+            when(userRepository.findAll(any(Pageable.class))).thenReturn(userPage);
 
             when(userMapper.toInfoDto(any(User.class)))
                     .thenReturn(dto1, dto2);
 
-            var output = userService.fetchAllUsersInfo();
+            var output = userService.fetchAllUsersInfo(pageable);
 
-            assertEquals(expectedList, output);
-            assertEquals(expectedList.size(), output.size());
+            assertNotNull(output);
+            assertEquals(2, output.getContent().size());
         }
     }
 

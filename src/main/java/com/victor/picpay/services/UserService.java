@@ -1,22 +1,22 @@
 package com.victor.picpay.services;
 
-import java.util.List;
-import java.util.UUID;
-
-import jakarta.transaction.Transactional;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import com.victor.picpay.dtos.responses.SimpleMessageDTO;
 import com.victor.picpay.dtos.requests.UpdateUserDTO;
 import com.victor.picpay.dtos.requests.UserDTO;
+import com.victor.picpay.dtos.responses.SimpleMessageDTO;
 import com.victor.picpay.dtos.responses.UserInfoDTO;
 import com.victor.picpay.entities.User;
 import com.victor.picpay.enums.UserType;
-import com.victor.picpay.exceptions.UserNotFoundException;
 import com.victor.picpay.exceptions.UserDataAlreadyExists;
+import com.victor.picpay.exceptions.UserNotFoundException;
 import com.victor.picpay.mappers.UserMapper;
 import com.victor.picpay.repositories.UserRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -61,8 +61,8 @@ public class UserService {
         return userMapper.toInfoDto(user);
     }
 
-    public List<UserInfoDTO> fetchAllUsersInfo() {
-        return userRepository.findAll().stream().map(userMapper::toInfoDto).toList();
+    public Page<UserInfoDTO> fetchAllUsersInfo(Pageable pageable) {
+        return userRepository.findAll(pageable).map(userMapper::toInfoDto);
     }
 
     @Transactional
